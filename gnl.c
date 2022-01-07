@@ -6,7 +6,7 @@
 /*   By: ablondel <ablondel@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/05 14:53:06 by ablondel          #+#    #+#             */
-/*   Updated: 2022/01/06 15:24:09 by ablondel         ###   ########.fr       */
+/*   Updated: 2022/01/07 13:53:30 by ablondel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,54 +119,53 @@ char	*get_next_line(int fd)
 	ret = BUFFER_SIZE;
 	if (k == -1)
 		return (NULL);
-	while (1)
+	while (ret == BUFFER_SIZE && ft_nl(remaining) == -1)
 	{
-		while (ret == BUFFER_SIZE && ft_nl(buf) == -1)
-		{
-			ret = read(fd, buf, BUFFER_SIZE);
-			if (ret == -1)
-				return (NULL);
-			buf[ret] = '\0';
-			tmp = remaining;
-			remaining = ft_strjoin(remaining, buf);
-			free(tmp);
-			if (!remaining)
-				return (NULL);
-		}
-		if (ft_nl(remaining) >= 0)
-		{
-			line = ft_extract(remaining, ft_nl(remaining));
-			if (!line)
-				return (NULL);
-			tmp = remaining;
-			remaining = ft_update(remaining, ft_nl(remaining) + 1);
-			if (!remaining)
-				return (NULL);
-			return (line);
-		}
-		if (ft_nl(remaining) < 0)
-		{
-			k = -1;
-			if (!(line = ft_strdup(remaining)))
-				return (NULL);
-			free(remaining);
-			return (line);
-		}
+		ret = read(fd, buf, BUFFER_SIZE);
+		if (ret == -1)
+			return (NULL);
+		buf[ret] = '\0';
+		tmp = remaining;
+		remaining = ft_strjoin(remaining, buf);
+		free(tmp);
+		if (!remaining)
+			return (NULL);
+	}
+	if (ft_nl(remaining) >= 0)
+	{
+		line = ft_extract(remaining, ft_nl(remaining));
+		if (!line)
+			return (NULL);
+		tmp = remaining;
+		remaining = ft_update(remaining, ft_nl(remaining) + 1);
+		if (!remaining)
+			return (NULL);
+		return (line);
+	}
+	if (ft_nl(remaining) < 0)
+	{
+		k = -1;
+		if (!(line = ft_strdup(remaining)))
+			return (NULL);
+		free(remaining);
+		return (line);
 	}
 	return (NULL);
 }
 
-int		main(void)
+int		main(int ac, char **av)
 {
-	int fd = open("test", O_RDONLY);
 	char *s = NULL;
+	if (ac != 2)
+		return (0);
+	int fd = open(av[1], O_RDONLY);
 	while (1)
 	{
 		s = get_next_line(fd);
 		if (!s)
 		{
-			printf("%s", s);
-			system("leaks a.out");
+			//printf("%s", s);
+			//system("leaks a.out");
 			return (0);
 		}
 		printf("%s", s);
